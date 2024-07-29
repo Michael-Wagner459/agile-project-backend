@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const validateObjectId = require('../middleware/validateObjectId');
+const checkCompanyExists = require('../middleware/checkCompanyExists');
 const {
   getCompanies,
   getCompany,
@@ -15,12 +17,12 @@ router.post('/', createCompany);
 router.get('/', getCompanies);
 
 //route to get a single company
-router.get('/:id', getCompany);
+router.get('/:id', validateObjectId, checkCompanyExists, getCompany);
 
 //route to update a company
-router.put('/:id', updateCompany);
+router.put('/:id', validateObjectId, checkCompanyExists, updateCompany);
 
 //route to delete a company
-router.delete('/:id', deleteCompany);
+router.delete('/:id', validateObjectId, checkCompanyExists, deleteCompany);
 
 module.exports = router;

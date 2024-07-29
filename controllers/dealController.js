@@ -2,10 +2,13 @@ const Deal = require('../models/deals');
 
 //create a new deal
 exports.createDeal = async (req, res) => {
+  const { name, company, stage, closeDate, amount } = req.body;
+  if (!name || !company || !stage || !closeDate || !amount) {
+    return res.status(400).send('All fields are required');
+  }
   try {
-    const { name, company, stage, closeDate, amount } = req.body;
     const newDeal = new Deal({ name, company, stage, closeDate, amount });
-    const deal = newDeal.save();
+    const deal = await newDeal.save();
     res.json(deal);
   } catch (err) {
     console.log(err.message);
@@ -28,7 +31,6 @@ exports.getDeals = async (req, res) => {
 exports.getDeal = async (req, res) => {
   try {
     const deal = await Deal.findById(req.params.id).populate('company');
-    if (!deal) return res.status(404).json({ msg: 'Deal not found' });
     res.json(deal);
   } catch (err) {
     console.log(err.message);
@@ -38,8 +40,11 @@ exports.getDeal = async (req, res) => {
 
 //update a deal
 exports.updateDeal = async (req, res) => {
+  const { name, company, stage, closeDate, amount } = req.body;
+  if (!name || !company || !stage || !closeDate || !amount) {
+    return res.status(400).send('All fields are required');
+  }
   try {
-    const { name, company, stage, closeDate, amount } = req.body;
     const deal = await Deal.findByIdAndUpdate(
       req.params.id,
       { name, company, stage, closeDate, amount },

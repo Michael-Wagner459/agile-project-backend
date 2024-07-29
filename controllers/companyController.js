@@ -2,8 +2,12 @@ const Company = require('../models/company');
 
 //creates a new company
 exports.createCompany = async (req, res) => {
+  const { logo, name, phoneNumber, address, email, companyOwner, city, country, industry } = req.body;
+
+  if (!logo || !name || !phoneNumber || !address || !email || !companyOwner || !city || !country || !industry) {
+    return res.status(400).send('All fields are required');
+  }
   try {
-    const { logo, name, phoneNumber, address, email, companyOwner, city, country, industry } = req.body;
     const newCompany = new Company({
       logo,
       name,
@@ -14,12 +18,14 @@ exports.createCompany = async (req, res) => {
       city,
       country,
       industry,
+      createdDate: Date.now(),
+      lastActiveDate: Date.now(),
     });
     const company = await newCompany.save();
-    res.json(company);
+    return res.status(201).json(company);
   } catch (err) {
     console.log(err.message);
-    res.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 };
 
@@ -27,10 +33,10 @@ exports.createCompany = async (req, res) => {
 exports.getCompanies = async (req, res) => {
   try {
     const companies = await Company.find();
-    res.json(companies);
+    return res.json(companies);
   } catch (err) {
     console.log(err.message);
-    res.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 };
 
@@ -38,18 +44,21 @@ exports.getCompanies = async (req, res) => {
 exports.getCompany = async (req, res) => {
   try {
     const company = await Company.findById(req.params.id);
-    if (!company) return res.status(404).json({ msg: 'Company not found' });
-    res.json(company);
+    return res.json(company);
   } catch (err) {
     console.log(err.message);
-    res.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 };
 
 //updates company information
 exports.updateCompany = async (req, res) => {
+  const { logo, name, phoneNumber, address, email, companyOwner, city, country, industry } = req.body;
+
+  if (!logo || !name || !phoneNumber || !address || !email || !companyOwner || !city || !country || !industry) {
+    return res.status(400).send('All fields are required');
+  }
   try {
-    const { logo, name, phoneNumber, address, email, companyOwner, city, country, industry } = req.body;
     const company = await Company.findByIdAndUpdate(
       req.params.id,
       {
@@ -62,13 +71,14 @@ exports.updateCompany = async (req, res) => {
         city,
         country,
         industry,
+        lastActiveDate: Date.now(),
       },
       { new: true }
     );
-    res.json(company);
+    return res.json(company);
   } catch (err) {
     console.log(err.message);
-    res.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 };
 
@@ -76,8 +86,8 @@ exports.updateCompany = async (req, res) => {
 exports.deleteCompany = async (req, res) => {
   try {
     await Company.findByIdAndDelete(req.params.id);
-    res.json({ msg: 'Company Removed' });
+    return res.json({ msg: 'Company Removed' });
   } catch (err) {
-    res.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 };
