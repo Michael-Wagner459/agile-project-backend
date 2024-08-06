@@ -1,4 +1,5 @@
 const Company = require('../models/company');
+const Deal = require('../models/deals');
 
 //creates a new company
 exports.createCompany = async (req, res) => {
@@ -43,7 +44,7 @@ exports.getCompanies = async (req, res) => {
 //get single company
 exports.getCompany = async (req, res) => {
   try {
-    const company = await Company.findById(req.params.id);
+    const company = await Company.findById(req.params.id).populate('deals');
     return res.json(company);
   } catch (err) {
     console.log(err.message);
@@ -85,7 +86,15 @@ exports.updateCompany = async (req, res) => {
 //delete a company
 exports.deleteCompany = async (req, res) => {
   try {
-    await Company.findByIdAndDelete(req.params.id);
+    const companyId = req.params.id;
+    const company = await Company.findByIdAndDelete(companyId);
+
+    if (!company) {
+      return res.status(404).send('Company not found');
+    }
+
+    await Deal.deleteMany({ company: companyId });
+
     return res.json({ msg: 'Company Removed' });
   } catch (err) {
     return res.status(500).send('Server Error');

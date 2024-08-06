@@ -7,7 +7,6 @@ const DealSchema = new Schema({
   stage: {
     type: String,
     enum: ['Initiated', 'Qualified', 'Contract Sent', 'Closed Won', 'Closed Lost'],
-    default: 'Initiated',
   },
   createDate: { type: Date, default: Date.now },
   closeDate: Date,
@@ -16,4 +15,4 @@ const DealSchema = new Schema({
 
 const DealModel = mongoose.model('deal', DealSchema);
 
-module.exports = DealModel;
+(module.exports = DealModel), DealSchema;

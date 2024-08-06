@@ -1,4 +1,5 @@
 const Deal = require('../models/deals');
+const Company = require('../models/company');
 
 //create a new deal
 exports.createDeal = async (req, res) => {
@@ -9,6 +10,9 @@ exports.createDeal = async (req, res) => {
   try {
     const newDeal = new Deal({ name, company, stage, closeDate, amount });
     const deal = await newDeal.save();
+    await Company.findByIdAndUpdate(company, {
+      $push: { deals: deal._id },
+    });
     res.json(deal);
   } catch (err) {
     console.log(err.message);
@@ -57,10 +61,37 @@ exports.updateDeal = async (req, res) => {
   }
 };
 
+// Update the stage of a deal
+exports.updateDealStage = async (req, res) => {
+  const { stage } = req.body;
+
+  if (!stage) {
+    return res.status(400).send('Stage is required');
+  }
+
+  try {
+    const deal = await Deal.findByIdAndUpdate(req.params.id, { stage }, { new: true });
+    if (!deal) {
+      return res.status(404).send('Deal not found');
+    }
+    res.json(deal);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
 // delete a deal
 exports.deleteDeal = async (req, res) => {
   try {
-    await Deal.findByIdAndDelete(req.params.id);
+    const deal = await Deal.findByIdAndDelete(req.params.id);
+    if (!deal) {
+      return res.status(404).send('Deal not found');
+    }
+
+    await Company.findByIdAndUpdate(deal.company, {
+      $pull: { deals: deal._id },
+    });
     res.json({ msg: 'Deal removed' });
   } catch (err) {
     console.log(err.message);
