@@ -70,7 +70,7 @@ exports.updateDealStage = async (req, res) => {
   }
 
   try {
-    const deal = await Deal.findByIdAndUpdate(req.params.id, { stage }, { new: true });
+    const deal = await Deal.findByIdAndUpdate(req.params.id, { stage }, { new: true }).populate('company');
     if (!deal) {
       return res.status(404).send('Deal not found');
     }
