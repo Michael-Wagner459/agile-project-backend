@@ -13,7 +13,9 @@ exports.createDeal = async (req, res) => {
     await Company.findByIdAndUpdate(company, {
       $push: { deals: deal._id },
     });
-    res.json(deal);
+    const populatedDeal = await Deal.findById(deal._id).populate('company');
+
+    res.json(populatedDeal);
   } catch (err) {
     console.log(err.message);
     res.status(500).send('Server Error');
